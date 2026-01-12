@@ -1,0 +1,23 @@
+name: Sync MIR Projects Daily
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync-projects:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: cd scraper && pip install -r requirements.txt
+      - uses: browser-actions/setup-chrome@v1
+      - uses: nanasess/setup-chromedriver@v2
+      - name: Sync
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: cd scraper && python sync_mir_projects.py --campaign-id 4 --campaign-tag merryxmas
